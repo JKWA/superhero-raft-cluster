@@ -1,0 +1,162 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+       
+        {
+            "label": "Gotham",
+            "type": "shell",
+            "command": "iex",
+            "args": [
+                "--name", "gotham@127.0.0.1",
+                "--cookie", "secret_superhero_cookie",
+                "-S", "mix", "phx.server"
+            ],
+            "options": {
+                "env": {
+                    "MIX_ENV": "dev",
+                    "PORT": "4900",
+                    "CITY_NAME": "Gotham",
+                },
+                "cwd": "${workspaceFolder}"
+            },
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": true,
+                "panel": "dedicated",
+                "showReuseMessage": false,
+                "clear": false
+            },
+            "problemMatcher": []
+        },
+
+        {
+            "label": "Metropolis",
+            "type": "shell",
+            "command": "iex",
+            "args": [
+                "--name", "metropolis@127.0.0.1",
+                "--cookie", "secret_superhero_cookie",
+                "-S", "mix", "phx.server"
+            ],
+            "options": {
+                "env": {
+                    "MIX_ENV": "dev",
+                    "PORT": "4901",
+                    "CITY_NAME": "Metropolis",
+                },
+                "cwd": "${workspaceFolder}"
+            },
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": true,
+                "panel": "dedicated",
+                "showReuseMessage": false,
+                "clear": false
+            },
+            "problemMatcher": []
+        },
+        {
+            "label": "Capitol City",
+            "type": "shell",
+            "command": "iex",
+            "args": [
+                "--name", "capitol@127.0.0.1",
+                "--cookie", "secret_superhero_cookie",
+                "-S", "mix", "phx.server"
+            ],
+            "options": {
+                "env": {
+                    "MIX_ENV": "dev",
+                    "PORT": "4902",
+                    "CITY_NAME": "Capitol",
+                },
+                "cwd": "${workspaceFolder}"
+            },
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": true,
+                "panel": "dedicated",
+                "showReuseMessage": false,
+                "clear": false
+            },
+            "problemMatcher": []
+        },
+        {
+            "label": "Smallville",
+            "type": "shell",
+            "command": "iex",
+            "args": [
+                "--name", "smallville@127.0.0.1",
+                "--cookie", "secret_superhero_cookie",
+                "-S", "mix", "phx.server"
+            ],
+            "options": {
+                "env": {
+                    "MIX_ENV": "dev",
+                    "PORT": "4903",
+                    "CITY_NAME": "Smallville",
+                },
+                "cwd": "${workspaceFolder}"
+            },
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": true,
+                "panel": "dedicated",
+                "showReuseMessage": false,
+                "clear": false
+            },
+            "problemMatcher": []
+        },
+        {
+            "label": "Asgard",
+            "type": "shell",
+            "command": "iex",
+            "args": [
+                "--name", "asgard@127.0.0.1",
+                "--cookie", "secret_superhero_cookie",
+                "-S", "mix", "phx.server"
+            ],
+            "options": {
+                "env": {
+                    "MIX_ENV": "dev",
+                    "PORT": "4904",
+                    "CITY_NAME": "Asgard",
+                },
+                "cwd": "${workspaceFolder}"
+            },
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": true,
+                "panel": "dedicated",
+                "showReuseMessage": false,
+                "clear": false
+            },
+            "problemMatcher": []
+        },
+        {
+            "label": "Run Dispatch Cluster",
+            "dependsOn": [
+                "Gotham",
+                "Metropolis",
+                "Capitol City",
+                "Smallville",
+                "Asgard"
+            ],
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": true
+            },
+            "problemMatcher": [],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            }
+        }
+    ]
+}
