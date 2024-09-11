@@ -19,9 +19,7 @@ defmodule Dispatch.Store.PubSub do
   end
 
   @impl true
-  def handle_cast({:key_updated, key, value}, state) do
-    Logger.info("CAST Received key update: #{key} with value: #{inspect(value)}")
-
+  def handle_cast({:key_updated, _key, value}, state) do
     PubSub.broadcast(
       Dispatch.PubSub,
       topic(),
@@ -33,8 +31,6 @@ defmodule Dispatch.Store.PubSub do
 
   @impl true
   def handle_cast({:key_deleted, key}, state) do
-    Logger.info("CAST Received key delete: #{key}}")
-
     PubSub.broadcast(
       Dispatch.PubSub,
       topic(),
@@ -47,7 +43,7 @@ defmodule Dispatch.Store.PubSub do
   @impl true
   def handle_cast({:failure, key, reason, current_state}, state) do
     Logger.error(
-      "CAST Received failure on #{key} with reason: #{reason} state: #{inspect(current_state)}"
+      "Received failure on #{key} with reason: #{reason} state: #{inspect(current_state)}"
     )
 
     {:noreply, state}
