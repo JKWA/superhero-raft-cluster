@@ -2,7 +2,6 @@ defmodule Dispatch.Store.PubSub do
   use GenServer
   require Logger
 
-  alias Dispatch.Superhero
   alias Phoenix.PubSub
 
   def topic do
@@ -20,10 +19,13 @@ defmodule Dispatch.Store.PubSub do
 
   @impl true
   def handle_cast({:key_updated, _key, value}, state) do
+    # Value is a plain map from Raft - convert to Ash Resource struct for broadcast
+    ash_hero = struct!(Dispatch.Superhero.Resource, value)
+
     PubSub.broadcast(
       Dispatch.PubSub,
       topic(),
-      {:update_superhero, value}
+      {:update_superhero, ash_hero}
     )
 
     {:noreply, state}
@@ -31,10 +33,13 @@ defmodule Dispatch.Store.PubSub do
 
   @impl true
   def handle_cast({:key_deleted, key}, state) do
+    # Create minimal Ash Resource struct with just the id for deletion events
+    ash_hero = struct!(Dispatch.Superhero.Resource, %{id: key})
+
     PubSub.broadcast(
       Dispatch.PubSub,
       topic(),
-      {:delete_superhero, %Superhero{id: key}}
+      {:delete_superhero, ash_hero}
     )
 
     {:noreply, state}

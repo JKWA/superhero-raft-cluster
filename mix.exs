@@ -23,7 +23,7 @@ defmodule Dispatch.MixProject do
   def application do
     [
       mod: {Dispatch.Application, []},
-      extra_applications: [:logger, :runtime_tools, :mnesia]
+      extra_applications: [:logger, :runtime_tools]
     ]
   end
 
@@ -55,7 +55,8 @@ defmodule Dispatch.MixProject do
       {:uuid, "~> 1.1"},
       {:horde, "~> 0.8.5"},
       {:libcluster, "~> 3.3"},
-      {:ra, "~> 2.13"}
+      {:ra, "~> 2.13"},
+      {:ash, "~> 3.0"}
     ]
   end
 

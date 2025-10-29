@@ -2,13 +2,13 @@ defmodule Dispatch.SuperheroServer do
   use GenServer
   require Logger
 
-  alias Dispatch.{SuperheroRegistry, Superhero, SuperheroApi, Store}
+  alias Dispatch.SuperheroRegistry
   alias Horde.Registry
-  alias Store.SuperheroStore
 
   @polling_interval 4000
   @max_health 100
   @default_fights 0
+  @updatable_fields [:name, :node, :is_patrolling, :fights_won, :fights_lost, :health]
 
   def start_link(id) do
     GenServer.start_link(__MODULE__, id, name: via_tuple(id))
@@ -21,18 +21,28 @@ defmodule Dispatch.SuperheroServer do
     Logger.info("Initializing superhero server for #{id}")
     send(self(), :init_superhero)
 
-    {:ok, %{superhero: %Superhero{id: id}, current_superhero: nil}}
+    initial_hero = struct!(Dispatch.Superhero.Resource, %{id: id})
+    {:ok, %{superhero: initial_hero, current_superhero: nil}}
   end
 
   @impl true
   def handle_info(:init_superhero, %{superhero: superhero} = state) do
-    case SuperheroStore.get_superhero(superhero.id) do
-      {:ok, existing_superhero} ->
+    case Dispatch.Hero.get_superhero(superhero.id) do
+      {:ok, [existing_superhero]} ->
         Logger.info("Using existing superhero #{superhero.id}.")
+
+        # current_superhero = what's in Raft (for optimistic locking)
+        # superhero = updated with current node
+        updated_attrs =
+          Map.from_struct(existing_superhero)
+          |> Map.drop([:__meta__, :__metadata__])
+          |> Map.put(:node, node())
+
+        updated_superhero = struct!(Dispatch.Superhero.Resource, updated_attrs)
 
         new_state = %{
           state
-          | superhero: existing_superhero |> Map.put(:node, node()),
+          | superhero: updated_superhero,
             current_superhero: existing_superhero
         }
 
@@ -41,24 +51,21 @@ defmodule Dispatch.SuperheroServer do
 
         {:noreply, new_state}
 
-      {:error, :not_found} ->
-        new_superhero = generate_new_superhero(superhero)
+      {:ok, []} ->
+        Logger.error(
+          "Superhero #{superhero.id} not found in Raft store. It should have been created before starting the server."
+        )
 
-        new_state = %{
-          state
-          | superhero: new_superhero |> Map.put(:node, node()),
-            current_superhero: new_superhero
-        }
-
-        send(self(), :update_superhero)
-        schedule_next_action()
-
-        {:noreply, new_state}
+        {:stop, :superhero_not_found, state}
 
       {:error, :timeout} ->
         Logger.info("Timeout occurred, retrying superhero initialization.")
         Process.send_after(self(), :init_superhero, 2000)
         {:noreply, state}
+
+      {:error, error} ->
+        Logger.error("Failed to get superhero #{superhero.id}: #{inspect(error)}")
+        {:stop, :failed_to_get_superhero, state}
     end
   end
 
@@ -84,22 +91,18 @@ defmodule Dispatch.SuperheroServer do
         :update_superhero,
         %{current_superhero: current_superhero, superhero: updated_superhero} = state
       ) do
+    updated_attrs =
+      Map.from_struct(updated_superhero)
+      |> Map.take(@updatable_fields)
+
     new_state =
-      case SuperheroStore.upsert_superhero(current_superhero, updated_superhero) do
-        {:ok, _} ->
+      case Dispatch.Hero.update_superhero(current_superhero, updated_attrs) do
+        {:ok, updated_ash} ->
           Logger.info("Superhero #{updated_superhero.id} successfully updated in store.")
-          %{state | current_superhero: updated_superhero, superhero: updated_superhero}
+          %{state | current_superhero: updated_ash, superhero: updated_ash}
 
-        {:error, :not_match, current_value} ->
-          Logger.info(
-            "Superhero #{updated_superhero.id} was updated in store by another node #{inspect(current_value)}."
-          )
-
-          %{state | current_superhero: current_value, superhero: current_value}
-
-        {:error, :timeout} ->
-          Logger.info("Update store timeout for superhero #{updated_superhero.id}, reverted.")
-          %{state | superhero: current_superhero}
+        {:error, error} ->
+          handle_update_error(error, updated_superhero, current_superhero, state)
       end
 
     {:noreply, new_state}
@@ -136,16 +139,6 @@ defmodule Dispatch.SuperheroServer do
     :ok
   end
 
-  defp generate_new_superhero(superhero) do
-    new_superhero =
-      superhero
-      |> Map.put(:node, node())
-      |> Map.put(:name, "#{Faker.Superhero.prefix()} #{Faker.Superhero.name()}")
-
-    send(self(), :update_superhero)
-    new_superhero
-  end
-
   defp handle_win(superhero, state) do
     updated_superhero = Map.update(superhero, :fights_won, @default_fights, &(&1 + 1))
     Logger.info("#{superhero.name} won a fight, total wins: #{updated_superhero.fights_won}")
@@ -162,18 +155,48 @@ defmodule Dispatch.SuperheroServer do
     )
 
     if updated_superhero.health <= 0 do
-      handle_critical_health(updated_superhero)
+      handle_critical_health(updated_superhero, state)
     else
       send(self(), :update_superhero)
       %{state | superhero: updated_superhero}
     end
   end
 
-  defp handle_critical_health(updated_superhero) do
+  defp handle_critical_health(updated_superhero, state) do
     Logger.warning("#{updated_superhero.name} has health <= 0, terminating.")
-    SuperheroStore.delete_superhero(updated_superhero.id)
-    SuperheroApi.stop(updated_superhero.id)
-    {:noreply, updated_superhero}
+
+    case Dispatch.Hero.delete_superhero(updated_superhero) do
+      :ok ->
+        Logger.info("Superhero #{updated_superhero.id} deleted successfully via Ash")
+
+      {:ok, _deleted} ->
+        Logger.info("Superhero #{updated_superhero.id} deleted successfully via Ash")
+
+      {:error, error} ->
+        Logger.error("Failed to delete superhero #{updated_superhero.id}: #{inspect(error)}")
+    end
+
+    %{state | superhero: updated_superhero}
+  end
+
+  defp handle_update_error(error, updated_superhero, current_superhero, state) do
+    error_message = inspect(error)
+
+    if String.contains?(error_message, "Conflict") do
+      Logger.info("Superhero #{updated_superhero.id} was updated by another node, fetching current value.")
+
+      case Dispatch.Hero.get_superhero(updated_superhero.id) do
+        {:ok, [current_ash]} ->
+          %{state | current_superhero: current_ash, superhero: current_ash}
+
+        _ ->
+          Logger.warning("Failed to fetch current superhero value, keeping local state")
+          %{state | superhero: current_superhero}
+      end
+    else
+      Logger.warning("Update failed for superhero #{updated_superhero.id}: #{error_message}")
+      %{state | superhero: current_superhero}
+    end
   end
 
   defp update_superhero_losses(superhero, health_loss) do

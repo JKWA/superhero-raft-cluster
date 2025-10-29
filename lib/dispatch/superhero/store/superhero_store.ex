@@ -1,13 +1,11 @@
 defmodule Dispatch.Store.SuperheroStore do
-  alias Dispatch.{Superhero, RaftStore}
+  alias Dispatch.RaftStore
   require Logger
 
   @cluster_name :dispatch_cluster
 
-  def upsert_superhero(
-        %Superhero{id: id} = expected_superhero,
-        %Superhero{} = new_superhero
-      ) do
+  def upsert_superhero(expected_superhero, new_superhero) when is_map(expected_superhero) and is_map(new_superhero) do
+    id = expected_superhero.id
     RaftStore.write(@cluster_name, id, expected_superhero, new_superhero)
   end
 
