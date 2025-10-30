@@ -1,14 +1,11 @@
 # MissionControl Cluster
 
-Welcome to the MissionControl MissionControl project! This README will guide you through the setup process and explain how to run various tasks using Visual Studio Code.
+Welcome to the MissionControl project!
 
 ## Prerequisites
 
-Before you begin, make sure you have the following software installed on your machine:
-
-- [Visual Studio Code](https://code.visualstudio.com/download)
-- [Phoenix Framework](https://hexdocs.pm/phoenix/installation.html)
-- [Make](https://sp21.datastructur.es/materials/guides/make-install.html)
+- Erlang 28.0.1
+- Elixir 1.18.4-otp-28
 
 ## Getting Started
 
@@ -23,26 +20,78 @@ cd superhero-dynamic-cluster
 
 ### 2. Install Dependencies
 
-Install dependencies, if you have a Makefile installed, simply run:
+```sh
+mix deps.get
+mix compile
+```
+
+Or if you have Make installed:
 
 ```sh
 make setup
 ```
 
-## Tasks Overview
+## Running the Cluster
 
-The project includes Visual Studio Code tasks defined in `.vscode/tasks.json`.
+You can run the cluster in your terminal or within VS Code.
 
-### Run the Task
+### Run in Terminal using tmux
 
-This project includes a `tasks.json` for Visual Studio Code.
+**Requires:** [Make](https://sp21.datastructur.es/materials/guides/make-install.html) and [tmux](https://github.com/tmux/tmux/wiki/Installing)
 
-1. Open the Command Palette by pressing `Ctrl+Shift+P` (or `Cmd+Shift+P` on macOS).
-2. Type "Run Task" and select it from the list.
+Start all 5 dispatch centers in a single tmux session:
+
+```bash
+make start-cluster
+```
+
+This starts all nodes in separate tmux panes, visible at once.
+
+**View the cluster:**
+
+```bash
+make view-cluster
+```
+
+**Navigate between panes:**
+
+- `Ctrl+b` then arrow keys to switch panes
+- `Ctrl+b` then `z` to zoom in/out of current pane
+- `Ctrl+b` then `d` to detach (leave running in background)
+
+**Force kill a dispatch center:**
+
+Within a pane, press `Ctrl+c` twice to kill the node:
+
+```bash
+iex> Ctrl+c Ctrl+c
+```
+
+**Stop the entire cluster:**
+
+1. Detach from tmux: `Ctrl+b` then `d`
+2. Stop the cluster:
+
+```bash
+make stop-cluster
+```
+
+### Run in VS Code with Tasks
+
+**Requires:** [Visual Studio Code](https://code.visualstudio.com/download)
+
+1. Open the Command Palette: `Ctrl+Shift+P` (or `Cmd+Shift+P` on macOS)
+2. Type "Run Task" and select it
 3. Choose "Run MissionControl Cluster"
 
-This task will execute a series of scripts to start the nodes in the cluster, ensuring each component of the system is initiated correctly.
+This starts all 5 nodes in separate VS Code terminal panels. You can toggle between terminals to view each dispatch center and kill/restart individual nodes using VS Code's terminal controls.
 
-- Gotham runs on [http://localhost:4900](http://localhost:4900)
-- Metropolis runs on [http://localhost:4901](http://localhost:4901)
-- Capitol runs on [http://localhost:4902](http://localhost:4902)
+## Accessing Dispatch Centers
+
+Once the cluster is running, access any dispatch center in your browser:
+
+- Gotham: [http://localhost:4900](http://localhost:4900)
+- Metropolis: [http://localhost:4901](http://localhost:4901)
+- Capitol: [http://localhost:4902](http://localhost:4902)
+- Smallville: [http://localhost:4903](http://localhost:4903)
+- Asgard: [http://localhost:4904](http://localhost:4904)
