@@ -1,8 +1,8 @@
-defmodule Dispatch.SuperheroServer do
+defmodule MissionControl.SuperheroServer do
   use GenServer
   require Logger
 
-  alias Dispatch.SuperheroRegistry
+  alias MissionControl.SuperheroRegistry
   alias Horde.Registry
 
   @polling_interval 4000
@@ -21,13 +21,13 @@ defmodule Dispatch.SuperheroServer do
     Logger.info("Initializing superhero server for #{id}")
     send(self(), :init_superhero)
 
-    initial_hero = struct!(Dispatch.Superhero.Resource, %{id: id})
+    initial_hero = struct!(MissionControl.Superhero.Resource, %{id: id})
     {:ok, %{superhero: initial_hero, current_superhero: nil}}
   end
 
   @impl true
   def handle_info(:init_superhero, %{superhero: superhero} = state) do
-    case Dispatch.Hero.get_superhero(superhero.id) do
+    case MissionControl.get_superhero(superhero.id) do
       {:ok, [existing_superhero]} ->
         Logger.info("Using existing superhero #{superhero.id}.")
 
@@ -38,7 +38,7 @@ defmodule Dispatch.SuperheroServer do
           |> Map.drop([:__meta__, :__metadata__])
           |> Map.put(:node, node())
 
-        updated_superhero = struct!(Dispatch.Superhero.Resource, updated_attrs)
+        updated_superhero = struct!(MissionControl.Superhero.Resource, updated_attrs)
 
         new_state = %{
           state
@@ -96,7 +96,7 @@ defmodule Dispatch.SuperheroServer do
       |> Map.take(@updatable_fields)
 
     new_state =
-      case Dispatch.Hero.update_superhero(current_superhero, updated_attrs) do
+      case MissionControl.update_superhero(current_superhero, updated_attrs) do
         {:ok, updated_ash} ->
           Logger.info("Superhero #{updated_superhero.id} successfully updated in store.")
           %{state | current_superhero: updated_ash, superhero: updated_ash}
@@ -165,7 +165,7 @@ defmodule Dispatch.SuperheroServer do
   defp handle_critical_health(updated_superhero, state) do
     Logger.warning("#{updated_superhero.name} has health <= 0, terminating.")
 
-    case Dispatch.Hero.delete_superhero(updated_superhero) do
+    case MissionControl.delete_superhero(updated_superhero) do
       :ok ->
         Logger.info("Superhero #{updated_superhero.id} deleted successfully via Ash")
 
@@ -183,9 +183,11 @@ defmodule Dispatch.SuperheroServer do
     error_message = inspect(error)
 
     if String.contains?(error_message, "Conflict") do
-      Logger.info("Superhero #{updated_superhero.id} was updated by another node, fetching current value.")
+      Logger.info(
+        "Superhero #{updated_superhero.id} was updated by another node, fetching current value."
+      )
 
-      case Dispatch.Hero.get_superhero(updated_superhero.id) do
+      case MissionControl.get_superhero(updated_superhero.id) do
         {:ok, [current_ash]} ->
           %{state | current_superhero: current_ash, superhero: current_ash}
 

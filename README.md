@@ -1,6 +1,6 @@
-# Dispatch Cluster
+# MissionControl Cluster
 
-Welcome to the Dispatch Dispatch project! This README will guide you through the setup process and explain how to run various tasks using Visual Studio Code.
+Welcome to the MissionControl MissionControl project! This README will guide you through the setup process and explain how to run various tasks using Visual Studio Code.
 
 ## Prerequisites
 
@@ -39,7 +39,7 @@ This project includes a `tasks.json` for Visual Studio Code.
 
 1. Open the Command Palette by pressing `Ctrl+Shift+P` (or `Cmd+Shift+P` on macOS).
 2. Type "Run Task" and select it from the list.
-3. Choose "Run Dispatch Cluster"
+3. Choose "Run MissionControl Cluster"
 
 This task will execute a series of scripts to start the nodes in the cluster, ensuring each component of the system is initiated correctly.
 

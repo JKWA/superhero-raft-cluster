@@ -1,11 +1,11 @@
-defmodule Dispatch.Superhero.Changes.StopGenserver do
+defmodule MissionControl.Superhero.Changes.StopGenserver do
   @moduledoc """
   Stops the SuperheroServer GenServer after successful superhero deletion.
   Tolerates :not_found errors (GenServer already stopped).
   """
 
   def stop(superhero) do
-    case Dispatch.SuperheroApi.stop(superhero.id) do
+    case MissionControl.SuperheroApi.stop(superhero.id) do
       {:ok, _} ->
         {:ok, superhero}
 
@@ -14,10 +14,7 @@ defmodule Dispatch.Superhero.Changes.StopGenserver do
         {:ok, superhero}
 
       {:error, reason} ->
-        {:error,
-         Ash.Error.to_ash_error(
-           "Failed to stop GenServer: #{inspect(reason)}"
-         )}
+        {:error, Ash.Error.to_ash_error("Failed to stop GenServer: #{inspect(reason)}")}
     end
   end
 end

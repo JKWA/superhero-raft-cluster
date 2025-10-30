@@ -1,7 +1,7 @@
-defmodule Dispatch.SuperheroApi do
+defmodule MissionControl.SuperheroApi do
   require Logger
 
-  alias Dispatch.{
+  alias MissionControl.{
     SuperheroRegistry,
     SuperheroServer,
     SuperheroSupervisor,

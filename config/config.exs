@@ -14,7 +14,7 @@ config :dispatch, DispatchWeb.Endpoint,
     formats: [html: DispatchWeb.ErrorHTML, json: DispatchWeb.ErrorJSON],
     layout: false
   ],
-  pubsub_server: Dispatch.PubSub,
+  pubsub_server: MissionControl.PubSub,
   live_view: [signing_salt: "vQ8CuGxS"]
 
 # Configure esbuild (the version is required)

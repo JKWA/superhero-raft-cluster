@@ -1,4 +1,4 @@
-defmodule Dispatch.Superhero.Factory do
+defmodule MissionControl.Superhero.Factory do
   @moduledoc """
   Factory for generating superhero data.
   """

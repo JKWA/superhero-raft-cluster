@@ -1,4 +1,4 @@
-defmodule Dispatch.Superhero.ManualActions do
+defmodule MissionControl.Superhero.ManualActions do
   @moduledoc """
   Manual action implementations for Superhero resource.
   """
@@ -8,7 +8,7 @@ defmodule Dispatch.Superhero.ManualActions do
   use Ash.Resource.ManualUpdate
   use Ash.Resource.ManualDestroy
 
-  alias Dispatch.RaftStore
+  alias MissionControl.RaftStore
 
   @cluster_name :dispatch_cluster
 
@@ -27,10 +27,10 @@ defmodule Dispatch.Superhero.ManualActions do
   end
 
   defp read_by_id(id) do
-    case Dispatch.Store.SuperheroStore.get_superhero(id) do
+    case MissionControl.Store.SuperheroStore.get_superhero(id) do
       {:ok, hero} ->
         # hero is a plain map from Raft - convert to Ash Resource struct
-        ash_record = struct!(Dispatch.Superhero.Resource, hero)
+        ash_record = struct!(MissionControl.Superhero.Resource, hero)
         {:ok, [ash_record]}
 
       {:error, _} ->
@@ -39,12 +39,12 @@ defmodule Dispatch.Superhero.ManualActions do
   end
 
   defp read_all do
-    case Dispatch.Store.SuperheroStore.get_all_superheroes() do
+    case MissionControl.Store.SuperheroStore.get_all_superheroes() do
       {:ok, heroes} ->
         # heroes are plain maps from Raft - convert to Ash Resource structs
         ash_records =
           Enum.map(heroes, fn hero ->
-            struct!(Dispatch.Superhero.Resource, hero)
+            struct!(MissionControl.Superhero.Resource, hero)
           end)
 
         {:ok, ash_records}
@@ -68,8 +68,9 @@ defmodule Dispatch.Superhero.ManualActions do
     case RaftStore.dirty_write(@cluster_name, hero_map.id, hero_map) do
       {:ok, _} ->
         # Return as Ash Resource struct
-        ash_record = struct!(Dispatch.Superhero.Resource, hero_map)
+        ash_record = struct!(MissionControl.Superhero.Resource, hero_map)
         {:ok, ash_record}
+
       error ->
         error
     end
@@ -96,16 +97,21 @@ defmodule Dispatch.Superhero.ManualActions do
       {:ok, _} ->
         Logger.debug("Update successful for #{new_map.id}")
         # Return as Ash Resource struct
-        ash_record = struct!(Dispatch.Superhero.Resource, new_map)
+        ash_record = struct!(MissionControl.Superhero.Resource, new_map)
         {:ok, ash_record}
+
       {:error, :not_match, current_value} ->
         Logger.warning("Optimistic lock failed for #{new_map.id}")
         Logger.warning("Expected: #{inspect(expected_map)}")
         Logger.warning("In Raft:  #{inspect(current_value)}")
         # Another node updated it - return the current value as Ash Resource
-        ash_current = struct!(Dispatch.Superhero.Resource, current_value)
-        {:error, Ash.Error.to_ash_error("Conflict: superhero was updated by another node",
-          vars: [current_value: ash_current])}
+        ash_current = struct!(MissionControl.Superhero.Resource, current_value)
+
+        {:error,
+         Ash.Error.to_ash_error("Conflict: superhero was updated by another node",
+           vars: [current_value: ash_current]
+         )}
+
       error ->
         Logger.error("Update error for #{new_map.id}: #{inspect(error)}")
         error
@@ -119,6 +125,7 @@ defmodule Dispatch.Superhero.ManualActions do
     case RaftStore.delete(@cluster_name, superhero_id) do
       {:ok, _} ->
         {:ok, changeset.data}
+
       error ->
         error
     end

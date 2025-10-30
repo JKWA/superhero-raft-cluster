@@ -1,7 +1,7 @@
-defmodule Dispatch.RaftSetup do
+defmodule MissionControl.RaftSetup do
   use GenServer
   require Logger
-  alias Dispatch.RaftStore
+  alias MissionControl.RaftStore
   @cluster_name :dispatch_cluster
 
   def start_link(opts) do

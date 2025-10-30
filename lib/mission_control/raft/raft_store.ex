@@ -1,4 +1,4 @@
-defmodule Dispatch.RaftStore do
+defmodule MissionControl.RaftStore do
   @behaviour :ra_machine
   require Logger
 

@@ -1,4 +1,4 @@
-defmodule Dispatch.Superhero.Changes.HealthWarning do
+defmodule MissionControl.Superhero.Changes.HealthWarning do
   @moduledoc """
   Logs a warning when superhero health drops to critically low levels.
   """

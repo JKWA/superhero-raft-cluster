@@ -1,4 +1,4 @@
-defmodule Dispatch.Application do
+defmodule MissionControl.Application do
   use Application
   require Logger
 
@@ -8,20 +8,20 @@ defmodule Dispatch.Application do
     nodes = topology[:dispatch_gossip_cluster][:config][:hosts]
 
     children = [
-      {Dispatch.RaftSetup, [nodes: nodes]},
-      {Cluster.Supervisor, [topology, [name: Dispatch.ClusterSupervisor]]},
-      {Horde.Registry, name: Dispatch.SuperheroRegistry, keys: :unique, members: :auto},
+      {MissionControl.RaftSetup, [nodes: nodes]},
+      {Cluster.Supervisor, [topology, [name: MissionControl.ClusterSupervisor]]},
+      {Horde.Registry, name: MissionControl.SuperheroRegistry, keys: :unique, members: :auto},
       {
         Horde.DynamicSupervisor,
-        child_spec: {Dispatch.SuperheroServer, restart: :transient},
-        name: Dispatch.SuperheroSupervisor,
+        child_spec: {MissionControl.SuperheroServer, restart: :transient},
+        name: MissionControl.SuperheroSupervisor,
         strategy: :one_for_one,
         members: :auto,
         distribution_strategy: Horde.UniformDistribution
       },
       DispatchWeb.Telemetry,
-      {Phoenix.PubSub, name: Dispatch.PubSub},
-      Dispatch.Store.PubSub,
+      {Phoenix.PubSub, name: MissionControl.PubSub},
+      MissionControl.Store.PubSub,
       DispatchWeb.Endpoint
     ]
 
@@ -29,7 +29,7 @@ defmodule Dispatch.Application do
       strategy: :one_for_one,
       max_restarts: 3,
       max_seconds: 1,
-      name: Dispatch.Supervisor
+      name: MissionControl.Supervisor
     ]
 
     Supervisor.start_link(children, opts)

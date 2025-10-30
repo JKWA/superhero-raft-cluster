@@ -1,6 +1,6 @@
-defmodule Dispatch.SuperheroRegistryHandler do
+defmodule MissionControl.SuperheroRegistryHandler do
   require Logger
-  alias Dispatch.{SuperheroRegistry}
+  alias MissionControl.{SuperheroRegistry}
   alias Horde.{Registry}
 
   def get_all_superheroes do

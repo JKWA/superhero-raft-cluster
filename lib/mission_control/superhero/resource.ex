@@ -1,4 +1,4 @@
-defmodule Dispatch.Superhero.Resource do
+defmodule MissionControl.Superhero.Resource do
   @moduledoc """
   Ash resource for Superhero with Raft-based distributed storage.
 
@@ -11,7 +11,7 @@ defmodule Dispatch.Superhero.Resource do
   - Deleting a superhero stops its GenServer process
   """
   use Ash.Resource,
-    domain: Dispatch.Hero,
+    domain: MissionControl,
     data_layer: Ash.DataLayer.Simple
 
   attributes do
@@ -94,23 +94,23 @@ defmodule Dispatch.Superhero.Resource do
     read :by_id do
       description("Get a superhero by ID")
       argument(:id, :string, allow_nil?: false)
-      manual(Dispatch.Superhero.ManualActions)
+      manual(MissionControl.Superhero.ManualActions)
     end
 
     read :list_all do
       description("List all superheroes across the cluster")
-      manual(Dispatch.Superhero.ManualActions)
+      manual(MissionControl.Superhero.ManualActions)
     end
 
     create :create do
       description("Create a new superhero and start its GenServer")
       accept([:id, :name, :node, :is_patrolling, :fights_won, :fights_lost, :health])
-      manual(Dispatch.Superhero.ManualActions)
+      manual(MissionControl.Superhero.ManualActions)
 
       # Start the GenServer after successful creation
       change(
         after_action(fn _changeset, superhero, _context ->
-          Dispatch.Superhero.Changes.StartGenserver.start(superhero)
+          MissionControl.Superhero.Changes.StartGenserver.start(superhero)
         end)
       )
     end
@@ -119,21 +119,21 @@ defmodule Dispatch.Superhero.Resource do
       description("Update superhero attributes with optimistic locking")
       primary?(true)
       accept([:name, :node, :is_patrolling, :fights_won, :fights_lost, :health])
-      manual(Dispatch.Superhero.ManualActions)
+      manual(MissionControl.Superhero.ManualActions)
 
       # Warn when health is critically low
-      change(Dispatch.Superhero.Changes.HealthWarning)
+      change(MissionControl.Superhero.Changes.HealthWarning)
     end
 
     destroy :destroy do
       description("Delete a superhero and stop its GenServer")
       primary?(true)
-      manual(Dispatch.Superhero.ManualActions)
+      manual(MissionControl.Superhero.ManualActions)
 
       # Stop the GenServer after successful deletion
       change(
         after_action(fn _changeset, superhero, _context ->
-          Dispatch.Superhero.Changes.StopGenserver.stop(superhero)
+          MissionControl.Superhero.Changes.StopGenserver.stop(superhero)
         end)
       )
     end
