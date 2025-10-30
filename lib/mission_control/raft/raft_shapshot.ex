@@ -33,7 +33,7 @@ defmodule MissionControl.RaftSnapshot do
   end
 
   @impl true
-  def read_meta(location) do
+  def read_meta(_location) do
     {:ok, "metadata_placeholder"}
   end
 
@@ -43,7 +43,7 @@ defmodule MissionControl.RaftSnapshot do
   end
 
   @impl true
-  def read_chunk(state, chunk_size, _location) do
+  def read_chunk(state, _chunk_size, _location) do
     {:ok, "chunk_placeholder", state}
   end
 
@@ -61,7 +61,15 @@ defmodule MissionControl.RaftSnapshot do
 
   @impl true
   def sync(location) do
-    File.sync(location)
+    case File.open(location, [:read, :write]) do
+      {:ok, device} ->
+        result = :file.sync(device)
+        File.close(device)
+        result
+
+      error ->
+        error
+    end
   end
 
   @impl true

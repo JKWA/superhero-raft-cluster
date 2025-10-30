@@ -43,7 +43,7 @@ defmodule MissionControlWeb do
         layouts: [html: MissionControlWeb.Layouts]
 
       import Plug.Conn
-      import MissionControlWeb.Gettext
+      use Gettext, backend: MissionControlWeb.Gettext
 
       unquote(verified_routes())
     end
@@ -85,7 +85,7 @@ defmodule MissionControlWeb do
       import Phoenix.HTML
       # Core UI components and translation
       import MissionControlWeb.CoreComponents
-      import MissionControlWeb.Gettext
+      use Gettext, backend: MissionControlWeb.Gettext
 
       # Shortcut for generating JS commands
       alias Phoenix.LiveView.JS

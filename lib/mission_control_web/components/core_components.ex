@@ -17,7 +17,7 @@ defmodule MissionControlWeb.CoreComponents do
   use Phoenix.Component
 
   alias Phoenix.LiveView.JS
-  import MissionControlWeb.Gettext
+  use Gettext, backend: MissionControlWeb.Gettext
 
   @doc """
   Renders a modal.
