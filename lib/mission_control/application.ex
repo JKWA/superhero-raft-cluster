@@ -19,10 +19,10 @@ defmodule MissionControl.Application do
         members: :auto,
         distribution_strategy: Horde.UniformDistribution
       },
-      DispatchWeb.Telemetry,
+      MissionControlWeb.Telemetry,
       {Phoenix.PubSub, name: MissionControl.PubSub},
       MissionControl.Store.PubSub,
-      DispatchWeb.Endpoint
+      MissionControlWeb.Endpoint
     ]
 
     opts = [
@@ -43,7 +43,7 @@ defmodule MissionControl.Application do
 
   @impl true
   def config_change(changed, _new, removed) do
-    DispatchWeb.Endpoint.config_change(changed, removed)
+    MissionControlWeb.Endpoint.config_change(changed, removed)
     :ok
   end
 end

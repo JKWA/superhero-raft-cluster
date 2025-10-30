@@ -1,4 +1,4 @@
-defmodule DispatchWeb.CoreComponents do
+defmodule MissionControlWeb.CoreComponents do
   @moduledoc """
   Provides core UI components.
 
@@ -17,7 +17,7 @@ defmodule DispatchWeb.CoreComponents do
   use Phoenix.Component
 
   alias Phoenix.LiveView.JS
-  import DispatchWeb.Gettext
+  import MissionControlWeb.Gettext
 
   @doc """
   Renders a modal.
@@ -688,9 +688,9 @@ defmodule DispatchWeb.CoreComponents do
     # with our gettext backend as first argument. Translations are
     # available in the errors.po file (as we use the "errors" domain).
     if count = opts[:count] do
-      Gettext.dngettext(DispatchWeb.Gettext, "errors", msg, msg, count, opts)
+      Gettext.dngettext(MissionControlWeb.Gettext, "errors", msg, msg, count, opts)
     else
-      Gettext.dgettext(DispatchWeb.Gettext, "errors", msg, opts)
+      Gettext.dgettext(MissionControlWeb.Gettext, "errors", msg, opts)
     end
   end
 

@@ -8,10 +8,10 @@
 import Config
 
 # Configures the endpoint
-config :dispatch, DispatchWeb.Endpoint,
+config :dispatch, MissionControlWeb.Endpoint,
   url: [host: "localhost"],
   render_errors: [
-    formats: [html: DispatchWeb.ErrorHTML, json: DispatchWeb.ErrorJSON],
+    formats: [html: MissionControlWeb.ErrorHTML, json: MissionControlWeb.ErrorJSON],
     layout: false
   ],
   pubsub_server: MissionControl.PubSub,

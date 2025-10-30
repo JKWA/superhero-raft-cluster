@@ -1,5 +1,5 @@
-defmodule DispatchWeb.ErrorHTML do
-  use DispatchWeb, :html
+defmodule MissionControlWeb.ErrorHTML do
+  use MissionControlWeb, :html
 
   # If you want to customize your error pages,
   # uncomment the embed_templates/1 call below

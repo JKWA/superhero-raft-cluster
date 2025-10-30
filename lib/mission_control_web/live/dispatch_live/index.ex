@@ -1,5 +1,5 @@
-defmodule DispatchWeb.DispatchLive.Index do
-  use DispatchWeb, :live_view
+defmodule MissionControlWeb.DispatchLive.Index do
+  use MissionControlWeb, :live_view
   alias MissionControl.Store
   alias Phoenix.PubSub
 

@@ -1,4 +1,4 @@
-defmodule DispatchWeb.Telemetry do
+defmodule MissionControlWeb.Telemetry do
   use Supervisor
   import Telemetry.Metrics
 
@@ -63,7 +63,7 @@ defmodule DispatchWeb.Telemetry do
     [
       # A module, function and arguments to be invoked periodically.
       # This function must call :telemetry.execute/3 and a metric must be added above.
-      # {DispatchWeb, :count_users, []}
+      # {MissionControlWeb, :count_users, []}
     ]
   end
 end

@@ -1,5 +1,5 @@
-defmodule DispatchWeb.PageController do
-  use DispatchWeb, :controller
+defmodule MissionControlWeb.PageController do
+  use MissionControlWeb, :controller
 
   def home(conn, _params) do
     # The home page is often custom made,

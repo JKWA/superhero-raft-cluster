@@ -1,4 +1,4 @@
-defmodule DispatchWeb.Endpoint do
+defmodule MissionControlWeb.Endpoint do
   use Phoenix.Endpoint, otp_app: :dispatch
 
   # The session will be stored in the cookie and signed,
@@ -21,7 +21,7 @@ defmodule DispatchWeb.Endpoint do
     at: "/",
     from: :dispatch,
     gzip: false,
-    only: DispatchWeb.static_paths()
+    only: MissionControlWeb.static_paths()
   )
 
   # Code reloading can be explicitly enabled under the
@@ -49,5 +49,5 @@ defmodule DispatchWeb.Endpoint do
   plug(Plug.MethodOverride)
   plug(Plug.Head)
   plug(Plug.Session, @session_options)
-  plug(DispatchWeb.Router)
+  plug(MissionControlWeb.Router)
 end
