@@ -20,7 +20,7 @@ defmodule MissionControl.Store.PubSub do
   @impl true
   def handle_cast({:key_updated, _key, value}, state) do
     # Value is a plain map from Raft - convert to Ash Resource struct for broadcast
-    ash_hero = struct!(MissionControl.Superhero.Resource, value)
+    ash_hero = struct!(MissionControl.Superhero, value)
 
     PubSub.broadcast(
       MissionControl.PubSub,
@@ -34,7 +34,7 @@ defmodule MissionControl.Store.PubSub do
   @impl true
   def handle_cast({:key_deleted, key}, state) do
     # Create minimal Ash Resource struct with just the id for deletion events
-    ash_hero = struct!(MissionControl.Superhero.Resource, %{id: key})
+    ash_hero = struct!(MissionControl.Superhero, %{id: key})
 
     PubSub.broadcast(
       MissionControl.PubSub,

@@ -52,7 +52,7 @@ defmodule MissionControl.Dispatch.ManualActions do
     # Convert plain maps to Ash Resource structs
     ash_records =
       Enum.map(centers, fn center ->
-        struct!(MissionControl.Dispatch.Resource, center)
+        struct!(MissionControl.Dispatch, center)
       end)
 
     {:ok, ash_records}
@@ -66,7 +66,7 @@ defmodule MissionControl.Dispatch.ManualActions do
         {:ok, []}
 
       center ->
-        ash_record = struct!(MissionControl.Dispatch.Resource, center)
+        ash_record = struct!(MissionControl.Dispatch, center)
         {:ok, [ash_record]}
     end
   end

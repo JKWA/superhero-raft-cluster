@@ -21,7 +21,7 @@ defmodule MissionControl.SuperheroServer do
     Logger.info("Initializing superhero server for #{id}")
     send(self(), :init_superhero)
 
-    initial_hero = struct!(MissionControl.Superhero.Resource, %{id: id})
+    initial_hero = struct!(MissionControl.Superhero, %{id: id})
     {:ok, %{superhero: initial_hero, current_superhero: nil}}
   end
 
@@ -38,7 +38,7 @@ defmodule MissionControl.SuperheroServer do
           |> Map.drop([:__meta__, :__metadata__])
           |> Map.put(:node, node())
 
-        updated_superhero = struct!(MissionControl.Superhero.Resource, updated_attrs)
+        updated_superhero = struct!(MissionControl.Superhero, updated_attrs)
 
         new_state = %{
           state

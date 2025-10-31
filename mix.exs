@@ -56,7 +56,9 @@ defmodule MissionControl.MixProject do
       {:horde, "~> 0.8.5"},
       {:libcluster, "~> 3.3"},
       {:ra, "~> 2.13"},
-      {:ash, "~> 3.0"}
+      {:ash, "~> 3.0"},
+      {:sourceror, "~> 1.7", only: [:dev, :test], runtime: false},
+      {:igniter, "~> 0.3", only: [:dev]}
     ]
   end
 
