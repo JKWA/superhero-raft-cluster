@@ -15,7 +15,7 @@ defmodule MissionControl.Dispatch do
     domain: MissionControl,
     data_layer: Ash.DataLayer.Simple
 
-  alias MissionControl.Dispatch.ManualActions
+  alias MissionControl.Dispatch.ClusterActions
 
   attributes do
     attribute :node, :atom do
@@ -40,19 +40,19 @@ defmodule MissionControl.Dispatch do
   actions do
     read :list_all do
       description "List all dispatch centers in the cluster"
-      manual ManualActions
+      manual ClusterActions
     end
 
     read :by_node do
       description "Get a specific dispatch center by node name"
       argument :node, :atom, allow_nil?: false
-      manual ManualActions
+      manual ClusterActions
     end
 
     destroy :shutdown do
       description "Shutdown a dispatch center (triggers RPC call to stop the node)"
       primary? true
-      manual ManualActions
+      manual ClusterActions
     end
   end
 end

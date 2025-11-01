@@ -118,7 +118,7 @@ defmodule MissionControl.Superhero do
     update :update do
       description "Update superhero metadata"
       primary? true
-      accept [:name, :node, :is_patrolling, :fights_won, :fights_lost, :health]
+      accept [:node, :is_patrolling, :fights_won, :fights_lost, :health]
       manual RaftActions
 
       change HealthWarning

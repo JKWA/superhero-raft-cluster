@@ -1,13 +1,14 @@
-defmodule MissionControl.Dispatch.ManualActions do
+defmodule MissionControl.Dispatch.ClusterActions do
   @moduledoc """
-  Manual actions for Dispatch resource.
+  Cluster-based discovery implementation for Dispatch resource actions.
 
-  Wraps existing node operations (Node.list(), :rpc.call()) with Ash's action system.
-  Does NOT rewrite the logic - just calls MissionControl.Dispatch.Ops functions.
+  Reads ephemeral cluster state via ClusterService and performs node operations.
+  Does not persist data - all state is discovered at runtime.
   """
 
   use Ash.Resource.ManualRead
   use Ash.Resource.ManualDestroy
+  alias MissionControl.Dispatch.ClusterService
 
   require Logger
 
@@ -29,7 +30,7 @@ defmodule MissionControl.Dispatch.ManualActions do
   def destroy(changeset, _opts, _context) do
     dispatch_center = changeset.data
 
-    case MissionControl.Dispatch.Ops.shutdown(dispatch_center.node) do
+    case ClusterService.shutdown(dispatch_center.node) do
       {:ok, _result} ->
         Logger.info("MissionControl center #{dispatch_center.node} shutdown initiated")
         {:ok, dispatch_center}
@@ -43,13 +44,9 @@ defmodule MissionControl.Dispatch.ManualActions do
     end
   end
 
-  # Private functions
-
   defp read_all do
-    # Call existing Ops function - no rewrite!
-    centers = MissionControl.Dispatch.Ops.list_all()
+    centers = ClusterService.list_all()
 
-    # Convert plain maps to Ash Resource structs
     ash_records =
       Enum.map(centers, fn center ->
         struct!(MissionControl.Dispatch, center)
@@ -61,7 +58,7 @@ defmodule MissionControl.Dispatch.ManualActions do
   defp read_by_node(query) do
     node_arg = Ash.Query.get_argument(query, :node)
 
-    case MissionControl.Dispatch.Ops.get_info(node_arg) do
+    case ClusterService.get_info(node_arg) do
       nil ->
         {:ok, []}
 

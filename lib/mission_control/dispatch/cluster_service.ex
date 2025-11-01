@@ -1,6 +1,9 @@
-defmodule MissionControl.Dispatch.Ops do
+defmodule MissionControl.Dispatch.ClusterService do
   @moduledoc """
-  Operations for managing dispatch centers (nodes) in the cluster.
+  Service layer for cluster node operations.
+
+  Provides functions for discovering nodes, retrieving node metadata,
+  and performing node operations (shutdown) via RPC.
   """
 
   require Logger
