@@ -6,7 +6,7 @@ import Config
 # The watchers configuration can be used to run external
 # watchers to your application. For example, we can use it
 # to bundle .js and .css sources.
-config :dispatch, DispatchWeb.Endpoint,
+config :dispatch, MissionControlWeb.Endpoint,
   http: [ip: {127, 0, 0, 1}, port: String.to_integer(System.get_env("PORT") || "4900")],
   check_origin: false,
   code_reloader: true,
@@ -41,7 +41,7 @@ config :dispatch, DispatchWeb.Endpoint,
 # different ports.
 
 # Watch static and templates for browser reloading.
-config :dispatch, DispatchWeb.Endpoint,
+config :dispatch, MissionControlWeb.Endpoint,
   live_reload: [
     patterns: [
       ~r"priv/static/.*(js|css|png|jpeg|jpg|gif|svg)$",

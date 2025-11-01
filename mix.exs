@@ -1,4 +1,4 @@
-defmodule Dispatch.MixProject do
+defmodule MissionControl.MixProject do
   use Mix.Project
 
   def project do
@@ -22,8 +22,8 @@ defmodule Dispatch.MixProject do
   # Type `mix help compile.app` for more information.
   def application do
     [
-      mod: {Dispatch.Application, []},
-      extra_applications: [:logger, :runtime_tools, :mnesia]
+      mod: {MissionControl.Application, []},
+      extra_applications: [:logger, :runtime_tools]
     ]
   end
 
@@ -55,7 +55,10 @@ defmodule Dispatch.MixProject do
       {:uuid, "~> 1.1"},
       {:horde, "~> 0.8.5"},
       {:libcluster, "~> 3.3"},
-      {:ra, "~> 2.13"}
+      {:ra, "~> 2.13"},
+      {:ash, "~> 3.0"},
+      {:sourceror, "~> 1.7", only: [:dev, :test], runtime: false},
+      {:igniter, "~> 0.3", only: [:dev]}
     ]
   end
 
