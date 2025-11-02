@@ -8,7 +8,6 @@ defmodule MissionControl.SuperheroServer do
   @polling_interval 4000
   @max_health 100
   @default_fights 0
-  @updatable_fields [:name, :node, :is_patrolling, :fights_won, :fights_lost, :health]
 
   def start_link(id) do
     GenServer.start_link(__MODULE__, id, name: via_tuple(id))
@@ -35,7 +34,7 @@ defmodule MissionControl.SuperheroServer do
         # superhero = updated with current node
         updated_attrs =
           Map.from_struct(existing_superhero)
-          |> Map.drop([:__meta__, :__metadata__])
+          |> Map.take(Ash.Resource.Info.attribute_names(MissionControl.Superhero))
           |> Map.put(:node, node())
 
         updated_superhero = struct!(MissionControl.Superhero, updated_attrs)
@@ -93,7 +92,7 @@ defmodule MissionControl.SuperheroServer do
       ) do
     updated_attrs =
       Map.from_struct(updated_superhero)
-      |> Map.take(@updatable_fields)
+      |> Map.take(Ash.Resource.Info.action(MissionControl.Superhero, :update).accept)
 
     new_state =
       case MissionControl.update_superhero(current_superhero, updated_attrs) do
@@ -180,9 +179,21 @@ defmodule MissionControl.SuperheroServer do
   end
 
   defp handle_update_error(error, updated_superhero, current_superhero, state) do
-    error_message = inspect(error)
+    is_conflict =
+      case error do
+        %Ash.Error.Invalid{errors: errors} ->
+          Enum.any?(errors, fn err ->
+            err_string = inspect(err)
 
-    if String.contains?(error_message, "Conflict") do
+            String.contains?(err_string, "Conflict") or
+              String.contains?(err_string, "updated by another node")
+          end)
+
+        _ ->
+          false
+      end
+
+    if is_conflict do
       Logger.info(
         "Superhero #{updated_superhero.id} was updated by another node, fetching current value."
       )
@@ -196,7 +207,7 @@ defmodule MissionControl.SuperheroServer do
           %{state | superhero: current_superhero}
       end
     else
-      Logger.warning("Update failed for superhero #{updated_superhero.id}: #{error_message}")
+      Logger.warning("Update failed for superhero #{updated_superhero.id}: #{inspect(error)}")
       %{state | superhero: current_superhero}
     end
   end
